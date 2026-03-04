@@ -1,0 +1,302 @@
+“””
+T.H.O.R. — Thorium Heat and Open Reactor
+Conceptual Physics Reference — V1.0
+Open Source Prior Art — CC0 / Public Domain
+
+THIS IS A CONCEPTUAL REFERENCE ARCHITECTURE.
+Not a construction manual. Actual reactor construction requires
+credentialed nuclear engineers, regulatory approval, and
+institutional infrastructure. This document establishes
+open-source prior art on the conceptual design framework.
+
+Covers:
+
+1. Thorium fuel cycle basics
+1. Molten salt thermal properties
+1. Simplified neutron economy
+1. Passive safety characteristics
+1. Comparative waste analysis
+1. Small modular scaling estimates
+   “””
+
+import math
+
+print(”=” * 65)
+print(“T.H.O.R. — Thorium Heat and Open Reactor”)
+print(“Conceptual Physics Reference V1.0”)
+print(“CC0 / Public Domain — Open Source Nuclear Architecture”)
+print(”=” * 65)
+
+# ============================================================
+
+# SECTION 1: THORIUM FUEL CYCLE
+
+# ============================================================
+
+print(”\n— SECTION 1: THORIUM FUEL CYCLE —”)
+print(”””
+The Thorium-232 fuel cycle (Th-U233 cycle):
+
+Step 1 — Neutron absorption:
+Th-232 + neutron → Th-233
+
+Step 2 — Beta decay chain (rapid):
+Th-233 → Pa-233 + beta (half-life: 22 minutes)
+Pa-233 → U-233 + beta (half-life: 27 days)
+
+Step 3 — U-233 fission:
+U-233 + neutron → fission products + 2.49 neutrons (avg)
+Energy per fission: ~200 MeV = 3.2 x 10^-11 Joules
+
+Key advantage: U-233 produces MORE neutrons per absorption
+than U-235 or Pu-239 in thermal spectrum reactors.
+This enables a BREEDING RATIO > 1.0 in thermal spectrum —
+the only fissile material that can do this.
+“””)
+
+# Neutron yield comparison
+
+print(”  Neutron yield comparison (thermal spectrum):”)
+print(f”  {‘Fuel’:>10} {‘Neutrons/fission’:>18} {‘Neutrons/absorption (eta)’:>26}”)
+print(”  “ + “-” * 56)
+fuels = [(“U-233”, 2.49, 2.29), (“U-235”, 2.43, 2.07), (“Pu-239”, 2.87, 2.11)]
+for fuel, nf, eta in fuels:
+print(f”  {fuel:>10} {nf:>18.2f} {eta:>26.2f}”)
+print(”””
+eta (neutrons per absorption) must exceed 2.0 for breeding.
+U-233 achieves this in thermal spectrum. U-235 and Pu-239 do not.
+This is the fundamental physics case for thorium.
+“””)
+
+# ============================================================
+
+# SECTION 2: MOLTEN SALT THERMAL PROPERTIES
+
+# ============================================================
+
+print(”\n— SECTION 2: MOLTEN SALT THERMAL PROPERTIES —”)
+
+# Reference salt: FLiBe (Lithium Fluoride - Beryllium Fluoride)
+
+# 2LiF-BeF2, the classic ORNL choice
+
+print(”””
+Reference salt: FLiBe (2LiF-BeF2)
+The salt used in the ORNL Molten Salt Reactor Experiment (1965-1969)
+“””)
+
+flibe = {
+“Melting point”: (“459°C (858°F)”, “Above melting = liquid, reactor operates ~700°C”),
+“Boiling point”: (“1430°C (2606°F)”, “Safety margin: ~730°C before boiling at 1 atm”),
+“Operating temp”: (“650-750°C typical”, “High temp = high thermodynamic efficiency”),
+“Density at 700°C”: (“~1940 kg/m³”, “Denser than water — good neutron moderation”),
+“Heat capacity”: (“~2415 J/kg·K”, “Excellent thermal storage per kg”),
+“Thermal conductivity”: (“~1.0 W/m·K”, “Moderate — flow-dependent heat transfer”),
+“Viscosity at 700°C”: (“~6 mPa·s”, “Similar to water — good pumpability”),
+}
+
+print(f”  {‘Property’:>25} {‘Value’:>22} {‘Notes’}”)
+print(”  “ + “-” * 80)
+for prop, (val, note) in flibe.items():
+print(f”  {prop:>25} {val:>22}   {note}”)
+
+# Thermodynamic efficiency
+
+print(”\n  Thermodynamic efficiency (Carnot approximation):”)
+T_hot_K = 750 + 273   # K — reactor outlet temperature
+T_cold_K = 40 + 273   # K — condenser temperature (ambient)
+eta_carnot = 1 - (T_cold_K / T_hot_K)
+eta_practical = eta_carnot * 0.60  # practical fraction of Carnot
+
+print(f”  T_hot = {T_hot_K-273}°C = {T_hot_K}K”)
+print(f”  T_cold = {T_cold_K-273}°C = {T_cold_K}K”)
+print(f”  Carnot efficiency = 1 - (T_cold/T_hot) = {eta_carnot:.3f} = {eta_carnot*100:.1f}%”)
+print(f”  Practical efficiency (60% of Carnot) = {eta_practical:.3f} = {eta_practical*100:.1f}%”)
+print(f”  Compare: Coal plant ~33%, best natural gas ~55%, conventional nuclear ~33%”)
+print(f”  MSR operating at 750°C achieves ~{eta_practical*100:.0f}% — significantly better.”)
+
+# ============================================================
+
+# SECTION 3: PASSIVE SAFETY — THE DRAIN TANK
+
+# ============================================================
+
+print(”\n— SECTION 3: PASSIVE SAFETY CHARACTERISTICS —”)
+print(”””
+The MSR’s most important safety feature requires no pumps,
+no operator action, and no electricity. It is pure physics.
+
+THE FREEZE PLUG (Passive Drain System):
+─────────────────────────────────────────
+A plug of frozen salt seals the drain at the bottom of the reactor.
+The plug is kept frozen by a small electric cooling fan.
+
+On loss of power (any cause):
+→ Cooling fan stops
+→ Plug melts in ~10-15 minutes
+→ All fuel salt drains by gravity into subcritical drain tanks
+→ Fission stops — permanently, without operator intervention
+→ Decay heat dissipates passively into drain tank geometry
+
+This is the opposite of Chernobyl and Fukushima:
+Chernobyl: Loss of control WITH power = runaway
+Fukushima: Loss of power = loss of cooling = meltdown
+MSR:       Loss of power = automatic safe shutdown
+
+NO OPERATOR ACTION REQUIRED. NO BACKUP POWER REQUIRED.
+THE REACTOR FAILS INTO A SAFE STATE BY PHYSICS ALONE.
+“””)
+
+# Decay heat calculation
+
+print(”  Decay heat after shutdown (Way-Wigner approximation):”)
+print(f”  P_decay(t) = 0.066 * P_0 * t^(-0.2)  (t in seconds after shutdown)”)
+print()
+P0 = 100  # % power (normalized)
+print(f”  {‘Time after shutdown’:>22} {‘Decay heat (% of P0)’:>22} {‘For 100 MWt reactor’}”)
+print(”  “ + “-” * 65)
+times = [
+(1, “1 second”), (60, “1 minute”), (3600, “1 hour”),
+(86400, “1 day”), (604800, “1 week”), (2592000, “30 days”)
+]
+P_reactor = 100e6  # 100 MW thermal reference
+for t_sec, label in times:
+P_decay_pct = 0.066 * P0 * (t_sec ** -0.2)
+P_decay_MW = P_decay_pct / 100 * P_reactor / 1e6
+print(f”  {label:>22} {P_decay_pct:>18.2f}%   {P_decay_MW:.2f} MWt”)
+
+# ============================================================
+
+# SECTION 4: WASTE COMPARISON
+
+# ============================================================
+
+print(”\n— SECTION 4: NUCLEAR WASTE COMPARISON —”)
+print()
+print(f”  {‘Property’:>35} {‘Conventional LWR’:>18} {‘Thorium MSR’:>14}”)
+print(”  “ + “-” * 70)
+waste_comparison = [
+(“Waste per GWe-year (tonnes)”, “~30 tonnes”, “~1 tonne”),
+(“Long-lived waste (>1000yr)”, “Significant”, “Minimal”),
+(“Radiological hazard period”, “~300,000 years”, “~300 years”),
+(“Weapons-usable byproduct”, “Pu-239 (yes)”, “U-233+U-232 (difficult)”),
+(“Proliferation concern”, “High”, “Low-moderate”),
+(“Can burn existing LWR waste”, “No”, “Yes — actinide burning”),
+]
+for prop, lwr, msr in waste_comparison:
+print(f”  {prop:>35} {lwr:>18} {msr:>14}”)
+
+print(”””
+KEY POINT: The 300-year hazard period for MSR waste is transformative.
+300 years is within human institutional memory.
+A nuclear waste site that becomes safe in 300 years can be managed
+by existing legal and social structures. 300,000 years cannot.
+“””)
+
+# ============================================================
+
+# SECTION 5: SMALL MODULAR SCALING
+
+# ============================================================
+
+print(”\n— SECTION 5: SMALL MODULAR SCALING ESTIMATES —”)
+
+print(”””
+T.H.O.R. Conceptual Reference: 10 MWt (Megawatt thermal) module
+This is the community-scale target — large enough to power a small
+town or industrial facility, small enough to be transportable.
+“””)
+
+# Power density of FLiBe salt
+
+# ORNL MSRE operated at ~8 MW/m³ power density
+
+power_density = 8e6  # W/m³ — conservative for small modular
+
+P_thermal = 10e6    # 10 MWt target
+V_core = P_thermal / power_density
+r_core = (3 * V_core / (4 * math.pi)) ** (1/3)  # sphere approximation
+
+print(f”  Target thermal power: {P_thermal/1e6:.0f} MWt”)
+print(f”  Power density (conservative, based on ORNL MSRE): {power_density/1e6:.0f} MW/m³”)
+print(f”  Required core volume: {V_core:.3f} m³ = {V_core*1000:.1f} liters”)
+print(f”  Equivalent sphere radius: {r_core:.3f}m ({r_core*100:.1f}cm)”)
+print(f”  Equivalent sphere diameter: {r_core*2:.3f}m ({r_core*200:.1f}cm)”)
+print()
+
+# Electrical output
+
+eta = eta_practical
+P_electric = P_thermal * eta
+print(f”  Thermodynamic efficiency: {eta*100:.1f}%”)
+print(f”  Net electrical output: {P_electric/1e6:.2f} MWe”)
+print(f”  Homes powered (avg 1.2 kW continuous): {P_electric/1200:.0f} homes”)
+print()
+
+# Salt inventory
+
+rho_salt = 1940  # kg/m³
+m_salt = V_core * rho_salt * 3  # ~3x core volume total salt inventory
+print(f”  Estimated total salt inventory: {m_salt:.0f} kg ({m_salt:.0f} liters approx)”)
+print()
+
+# Thorium fuel consumption
+
+# Energy per fission: 200 MeV, Avogadro, U233 mass
+
+E_per_fission = 200e6 * 1.602e-19  # Joules
+N_A = 6.022e23
+M_U233 = 0.233  # kg/mol
+
+# Fissions per second for 10 MWt
+
+fissions_per_sec = P_thermal / E_per_fission
+
+# kg of U233 consumed per second
+
+kg_per_sec = (fissions_per_sec / N_A) * M_U233
+kg_per_year = kg_per_sec * 365.25 * 24 * 3600
+
+print(f”  Fissions per second at 10 MWt: {fissions_per_sec:.3e}”)
+print(f”  U-233 consumed per year: {kg_per_year:.2f} kg”)
+print(f”  Thorium required per year (breeding ~1:1): ~{kg_per_year*1.05:.2f} kg”)
+print(f”  Compare: Coal plant (10 MWe equiv) consumes ~{10*3500:.0f} tonnes/year of coal”)
+print(f”  Fuel mass ratio Coal:Thorium = {10*3500*1000/kg_per_year:.0f}:1”)
+
+# ============================================================
+
+# SUMMARY
+
+# ============================================================
+
+print(”\n” + “=” * 65)
+print(“T.H.O.R. CONCEPTUAL REFERENCE SUMMARY”)
+print(”=” * 65)
+summary = [
+(“Reactor type”, “Liquid Fluoride Thorium Reactor (LFTR)”),
+(“Reference salt”, “FLiBe (2LiF-BeF2)”),
+(“Operating temperature”, “650-750°C”),
+(“Thermodynamic efficiency”, f”{eta_practical*100:.0f}% (vs ~33% conventional nuclear)”),
+(“Target module size”, “10 MWt / ~3.5 MWe”),
+(“Core volume”, f”{V_core*1000:.1f} liters”),
+(“Core diameter (sphere)”, f”{r_core*200:.1f}cm”),
+(“Homes powered”, f”~{P_electric/1200:.0f} homes continuous”),
+(“Fuel consumption/year”, f”~{kg_per_year:.1f}kg U-233 (bred from Th-232)”),
+(“Waste hazard period”, “~300 years (vs 300,000 conventional)”),
+(“Passive safety”, “Freeze plug drain — fails safe without power”),
+(“Meltdown possible?”, “No — fuel already molten, drains to subcritical geometry”),
+(“Weapons concern”, “Low — U-233 contaminated with U-232 (gamma emitter)”),
+(“Prior art status”, “ORNL patents expired — public domain since ~1980s”),
+]
+for label, value in summary:
+print(f”  {label:<35} {value}”)
+
+print(”\n” + “=” * 65)
+print(“DISCLAIMER: Conceptual reference only.”)
+print(“Actual reactor construction requires credentialed nuclear”)
+print(“engineers, NRC/IAEA regulatory approval, and institutional”)
+print(“infrastructure. This document establishes open-source”)
+print(“conceptual prior art only.”)
+print(”=” * 65)
+print(“T.H.O.R. | Thorium Heat and Open Reactor | CC0 Public Domain”)
+print(”=” * 65)
