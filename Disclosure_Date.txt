@@ -1,0 +1,11 @@
+T.H.O.R. System public domain disclosure — March 3, 2026
+
+Thorium Heat and Open Reactor
+Conceptual reference architecture for a Liquid Fluoride Thorium Reactor (LFTR) small modular design.
+
+All concepts released to the public domain under CC0.
+No entity may obtain valid patent protection for concepts described herein after this date.
+
+Repository created: March 3, 2026
+Files uploaded: March 4, 2026
+Disclosure date: March 3, 2026
